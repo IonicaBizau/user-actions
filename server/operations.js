@@ -8,36 +8,95 @@ var CrudRoleCache = {};
  *
  *  user-actions#getUserControls
  *
- *  TODO
+ *  This function returns an object in the following format:
+ *  {
+ *      SELECTOR: true
+ *    , ANOTHER_SELECTOR: false
+ *  }
+ *
+ *  This object will be interpreted on the client side: `SELECTOR` will be visible
+ *  and `ANOTHER_SELECTOR` will be hidden.
+ *
+ *  Example
+ *
+ *      SERVER                                          CLIENT
+ *      Role Object
+ *      -----------                                     Selectors
+ *      {                                               "[data-action='delete']"
+ *          name: ...                                   "[data-action='update']"
+ *        , actions: [
+ *              {
+ *                  template: link.data.template
+ *                , filter:   link.data.filter
+ *                , selector: link.data.selector
+ *              }
+ *          ]
+ *      }
+ *
+ *      ----> each action --> Crud
+ *
+ *      {
+ *          "[data-action='update']": true
+ *        , "[data-action='delete']": false
+ *      }
+ *
  *
  * */
 exports.getUserControls = function (link) {
 
     // get the data sent from client
     var data = Object(link.data)
-      , data.filter = Object(data.filter)
+
+        // this object will be sent back to client
+      , responseObject = {}
       ;
 
-    // set the _id of the current item
-    options.filter._id = String(options._id);
-
-    // create the crud object
-    var crudObject = {
-        templateId: String(data.templateId)
-      , query: data.filter
-      , role: link.session.crudRole
-      , session: link.session
-    };
-
-    // find the items via crud
-    M.emit("crud.read", crudObject, function (err, items) {
+    // get the crud role
+    getRoleObject(link, function (err, crudRole) {
 
         // handle error
         if (err) {
             return link.send(400, err);
         }
 
-        // TODO
+        // get role actions
+        var actions = crudRole.actions;
+
+        // each action
+        for (var i = 0, l = actions.length, complete = 0; i < l; ++i) {
+
+            // anonymous function
+            (function (cAction) {
+
+                // set the _id of the current item
+                cAction.filter._id = String(options._id);
+
+                // create the crud object
+                var crudObject = {
+                    templateId: String(data.template || cAction.template)
+                  , query: cAction.filter
+                  , role: link.session.crudRole
+                  , session: link.session
+                };
+
+                // find the items via crud
+                M.emit("crud.read", crudObject, function (err, items) {
+
+                    // handle error
+                    if (err) {
+                        return link.send(400, err);
+                    }
+
+                    // set a true/false value for this selector
+                    responseObject[cAction.selector] = Boolean(items.length);
+
+                    // complete?
+                    if (++complete === l) {
+                        link.send(200, responseObject);
+                    }
+                });
+            })(actions[i]);
+        }
     });
 };
 
@@ -53,6 +112,7 @@ exports.runAction = function (links) {
 };
 
 /**
+ * private: getRoleObject
  *
  *  This function callbacks the crud role object from the database
  *  using CRUD or from CrudRoleCache object.
@@ -62,7 +122,7 @@ exports.runAction = function (links) {
  *    @callback: the callback function
  *
  * */
-function getCrudRole (link, callback) {
+function getRoleObject (link, callback) {
 
     // stringify the crud role
     var stringifiedCrudRole = link.session.crudRole.toString()
