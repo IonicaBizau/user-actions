@@ -29,29 +29,15 @@ module.exports = function init (config) {
      *
      *  Arguments
      *    @options: an object containing the following fields:
+     *      - TODO
+     *
+     *    @callback: the callback function
      *
      * */
     self.updateActionControls = function (options, callback) {
 
-        // TODO
-        // create the crud object
-        // var crudObject = {
-        //     t: options.template
-        //   , q: $.extend(
-        //            options.filter
-        //          , { _id: options._id }
-        //        )
-        // };
-
-        // // search the items
-        // self.emit("find", crudObject, function (err, items) {
-
-        //     // handle error
-        //     if (err) {
-        //         return callback (err, null);
-        //     }
-
-        // });
+        // call the server operation
+        self.link("getUserControls", {data: options}, callback);
     };
 
     // ready
