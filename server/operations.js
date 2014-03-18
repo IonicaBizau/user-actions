@@ -132,6 +132,7 @@ exports.runAction = function (links) {
  * */
 function getRoleObject (link, callback) {
 
+    debugger;
     // stringify the crud role
     var stringifiedCrudRole = link.session.crudRole.toString()
       , crudRoleInCache = CrudRoleCache[stringifiedCrudRole]
@@ -160,18 +161,27 @@ function getRoleObject (link, callback) {
             return callback (err);
         }
 
-        // handle error
-        if (!crudRoleObject || !crudRoleObject.length) {
-            return callback ("No crud role found with this id.");
-        }
+        // convert cursor to array
+        crudRoleObject.toArray(function (err, items) {
 
-        // get the first element from array
-        crudRoleObject = crudRoleObject[0];
+            // handle error
+            if (err) {
+                return callback (err);
+            }
 
-        // save the new crud role in cache
-        CrudRoleCache[stringifiedCrudRole] = crudRoleObject;
+            // handle error
+            if (!items || !items.length) {
+                return callback ("No crud role found with this id.");
+            }
 
-        // callback
-        callback (null, crudRoleObject);
+            // get the first element from array
+            crudRoleObject = items[0];
+
+            // save the new crud role in cache
+            CrudRoleCache[stringifiedCrudRole] = crudRoleObject;
+
+            // callback
+            callback (null, crudRoleObject);
+        });
     });
 }
