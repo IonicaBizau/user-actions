@@ -23,6 +23,12 @@ module.exports = function init (config) {
         }
     }
 
+    // module cache
+    self.cache = {
+        // { "selector": jQueryObjectsMatchedBySelector  }
+        selectors: {}
+    };
+
     /**
      *
      *  updateActionControls
@@ -37,7 +43,41 @@ module.exports = function init (config) {
     self.updateActionControls = function (options, callback) {
 
         // call the server operation
-        self.link("getUserControls", {data: options}, callback);
+        self.link("getUserControls", {data: options}, function (err, responseObject) {
+
+            // handle error
+            if (err) {
+                return callback (err, null);
+            }
+
+            // get selectors
+            var selectors = Object.keys(responseObject);
+
+            // each selector
+            for (var i = 0; i < selectors.length; ++i) {
+
+                // get the current selector
+                var cSelector = selectors[i]
+                  , $jQueryObject = self.cache.selectors[cSelector]
+                  ;
+
+                // the jquery object was taken from cache
+                if (!$jQueryObject) {
+                    $jQueryObject = self.cache.selectors[cSelector] = $(cSelector, self.dom);
+                }
+
+                // show it
+                if (responseObject[cSelector]) {
+                    $jQueryObject.show()
+                // hide it
+                } else {
+                    $jQueryObject.hide()
+                }
+            }
+
+            // callback
+            callback (null, responseObject);
+        });
     };
 
     // ready
