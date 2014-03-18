@@ -42,6 +42,10 @@ module.exports = function init (config) {
      * */
     self.updateActionControls = function (options, callback) {
 
+        // conversions and defaults
+        options = Object(options);
+        callback = callback || function () {};
+
         // call the server operation
         self.link("getUserControls", {data: options}, function (err, responseObject) {
 
@@ -93,6 +97,12 @@ module.exports = function init (config) {
      * */
     self.runAction = function (options, callback) {
 
+        // conversions and defaults
+        options = Object(options);
+        callback = callback || function () {};
+
+        // call the server operation
+        self.link("runAction", callback);
     };
 
     // ready
