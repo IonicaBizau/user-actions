@@ -1,3 +1,8 @@
+// dependencies
+var MongoDb = require("mongodb")
+  , ObjectId = MongoDb.ObjectID
+  ;
+
 //  crud role cache
 //  {
 //      CRUD_ROLE_ID: CRUD_ROLE_DOCUMENT
@@ -71,9 +76,12 @@ exports.getUserControls = function (link) {
                 // set the _id of the current item
                 cAction.filter._id = String(options._id);
 
+                // also, the template
+                cAction.filter._tp = ObjectId(cAction.template);
+
                 // create the crud object
                 var crudObject = {
-                    templateId: String(data.template || cAction.template)
+                    templateId: data.template
                   , query: cAction.filter
                   , role: link.session.crudRole
                   , session: link.session
