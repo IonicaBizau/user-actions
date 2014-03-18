@@ -74,14 +74,14 @@ exports.getUserControls = function (link) {
             (function (cAction) {
 
                 // set the _id of the current item
-                cAction.filter._id = String(options._id);
+                cAction.filter._id = String(data.itemId);
 
                 // also, the template
                 cAction.filter._tp = ObjectId(cAction.template);
 
                 // create the crud object
                 var crudObject = {
-                    templateId: data.template
+                    templateId: data.templateId
                   , query: cAction.filter
                   , role: link.session.crudRole
                   , session: link.session
