@@ -95,13 +95,22 @@ exports.getUserControls = function (link) {
                         return link.send(400, err);
                     }
 
-                    // set a true/false value for this selector
-                    responseObject[cAction.selector] = Boolean(items.length);
+                    // convert cursor to array
+                    items.toArray(function (err, items) {
 
-                    // complete?
-                    if (++complete === l) {
-                        link.send(200, responseObject);
-                    }
+                        // handle error
+                        if (err) {
+                            return link.send(400, err);
+                        }
+
+                        // set a true/false value for this selector
+                        responseObject[cAction.selector] = Boolean(items.length);
+
+                        // complete?
+                        if (++complete === l) {
+                            link.send(200, responseObject);
+                        }
+                    })
                 });
             })(actions[i]);
         }
@@ -132,7 +141,6 @@ exports.runAction = function (links) {
  * */
 function getRoleObject (link, callback) {
 
-    debugger;
     // stringify the crud role
     var stringifiedCrudRole = link.session.crudRole.toString()
       , crudRoleInCache = CrudRoleCache[stringifiedCrudRole]
