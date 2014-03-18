@@ -80,6 +80,21 @@ module.exports = function init (config) {
         });
     };
 
+    /**
+     *  user-actions#runAction
+     *
+     *  This function calls the server operation which validates the
+     *  rights of this user to run the action.
+     *
+     *  Arguments
+     *    @options: object
+     *    @callback: the callback function
+     *
+     * */
+    self.runAction = function (options, callback) {
+
+    };
+
     // ready
     self.emit("ready", config);
 };
