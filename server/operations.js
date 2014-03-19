@@ -69,7 +69,7 @@ exports.getUserControls = function (link) {
  *  on the server side.
  *
  * */
-exports.runAction = function (links) {
+exports.runAction = function (link) {
 
     // get allowed actions for this user
     getAllowedActions (link, function (err, responseObject) {
