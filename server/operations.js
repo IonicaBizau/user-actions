@@ -49,9 +49,6 @@ var CrudRoleCache = {};
  * */
 exports.getUserControls = function (link) {
 
-    // get the data sent from client
-    var data = Object(link.data);
-
     // get allowed actions for this user
     getAllowedActions (link, function (err, responseObject) {
 
@@ -86,6 +83,9 @@ function getAllowedActions (link, callback) {
 
     // this object will be sent back to client
     var responseObject = {}
+
+        // get the data sent from client
+      , data = Object(link.data);
 
     // get the crud role
     getRoleObject(link, function (err, crudRole) {
