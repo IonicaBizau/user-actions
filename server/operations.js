@@ -50,11 +50,42 @@ var CrudRoleCache = {};
 exports.getUserControls = function (link) {
 
     // get the data sent from client
-    var data = Object(link.data)
+    var data = Object(link.data);
 
-        // this object will be sent back to client
-      , responseObject = {}
-      ;
+    // get allowed actions for this user
+    getAllowedActions (link, function (err, responseObject) {
+
+        // handle error
+        if (err) {
+            return link.send(400, err);
+        }
+
+        // success response
+        link.send(200, responseObject);
+    });
+};
+
+/**
+ *  user-actions#runAction
+ *
+ *  This operation runs an user action running the validations
+ *  on the server side.
+ *
+ * */
+exports.runAction = function (links) {
+    link.send(400, "Not yet implemented");
+};
+
+/**
+ * private: getAllowedActions
+ *  This function returns via callback the allowed actions for the
+ *  current user.
+ *
+ */
+function getAllowedActions (link, callback) {
+
+    // this object will be sent back to client
+    var responseObject = {}
 
     // get the crud role
     getRoleObject(link, function (err, crudRole) {
@@ -92,7 +123,7 @@ exports.getUserControls = function (link) {
 
                     // handle error
                     if (err) {
-                        return link.send(400, err);
+                        return callback (err);
                     }
 
                     // convert cursor to array
@@ -100,7 +131,7 @@ exports.getUserControls = function (link) {
 
                         // handle error
                         if (err) {
-                            return link.send(400, err);
+                            return callback (err);
                         }
 
                         // set a true/false value for this selector
@@ -108,25 +139,14 @@ exports.getUserControls = function (link) {
 
                         // complete?
                         if (++complete === l) {
-                            link.send(200, responseObject);
+                            callback (null, responseObject);
                         }
                     })
                 });
             })(actions[i]);
         }
     });
-};
-
-/**
- *  user-actions#runAction
- *
- *  This operation runs an user action running the validations
- *  on the server side.
- *
- * */
-exports.runAction = function (links) {
-    link.send(400, "Not yet implemented");
-};
+}
 
 /**
  * private: getRoleObject
