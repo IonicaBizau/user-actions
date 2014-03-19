@@ -70,7 +70,31 @@ exports.getUserControls = function (link) {
  *
  * */
 exports.runAction = function (links) {
-    link.send(400, "Not yet implemented");
+
+    // get allowed actions for this user
+    getAllowedActions (link, function (err, responseObject) {
+
+        // handle error
+        if (err) {
+            return link.send(400, err);
+        }
+
+        // get current action
+        var cAction = link.data.cAction;
+
+        if (!cAction) {
+            return link.send(400, "Missing current action");
+        }
+
+        // not allowed
+        if (!responseObject[cAction]) {
+            return link.send(403, "You are not allowed to run this action.");
+        }
+
+        // emit some event. Sombody must listen this event and to handle
+        // it correctly
+        M.emit("user-actions:run-action", link);
+    });
 };
 
 /**
@@ -85,7 +109,7 @@ function getAllowedActions (link, callback) {
     var responseObject = {}
 
         // get the data sent from client
-      , data = Object(link.data);
+      , data = link.data = Object(link.data);
 
     // get the crud role
     getRoleObject(link, function (err, crudRole) {
