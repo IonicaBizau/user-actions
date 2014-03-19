@@ -116,7 +116,7 @@ function getAllowedActions (link, callback) {
 
         // handle error
         if (err) {
-            return link.send(400, err);
+            return callback (err);
         }
 
         // get role actions
