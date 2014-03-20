@@ -93,7 +93,7 @@ exports.runAction = function (link) {
 
         // emit some event. Sombody must listen this event and to handle
         // it correctly
-        M.emit("user-actions:run-action", link);
+        M.emit("user-actions:run-action", link, responseObject, link.data);
     });
 };
 
