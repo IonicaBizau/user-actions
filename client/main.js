@@ -102,7 +102,7 @@ module.exports = function init (config) {
         callback = callback || function () {};
 
         // call the server operation
-        self.link("runAction", callback);
+        self.link("runAction", {data: options}, callback);
     };
 
     // ready

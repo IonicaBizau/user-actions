@@ -111,6 +111,16 @@ function getAllowedActions (link, callback) {
         // get the data sent from client
       , data = link.data = Object(link.data);
 
+    // missing item id
+    if (!data.itemId) {
+        return callback ("Missing item id.");
+    }
+
+    // missing template id
+    if (!data.templateId) {
+        return callback ("Missing template id.");
+    }
+
     // get the crud role
     getRoleObject(link, function (err, crudRole) {
 
