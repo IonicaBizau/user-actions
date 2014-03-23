@@ -168,8 +168,8 @@ function getAllowedActions (link, callback) {
                             return callback (err);
                         }
 
-                        // set a true/false value for this selector
-                        responseObject[cAction.selector] = Boolean(items.length);
+                        // set a true/false value for this selector (if already set, keep it)
+                        responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(items.length);
 
                         // complete?
                         if (++complete === l) {
