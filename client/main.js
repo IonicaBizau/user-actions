@@ -79,6 +79,14 @@ module.exports = function init (config) {
                 }
             }
 
+            // update BS3 button group buttons corner radius
+            $(".btn-group button:visible")
+                .first()
+                .addClass('radius-left')
+                .end()
+                .last()
+                .addClass('radius-right');
+
             // callback
             callback (null, responseObject);
         });
