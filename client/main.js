@@ -79,6 +79,9 @@ module.exports = function init (config) {
                 }
             }
 
+            // remove corner radius classes
+            $(".btn-group button:visible").removeClass("radius-left radius-right");
+
             // update BS3 button group buttons corner radius
             $(".btn-group button:visible")
                 .first()
