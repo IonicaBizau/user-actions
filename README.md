@@ -52,4 +52,5 @@ role_name: {
 
 ## Changelog
 
-No stable release yet.
+### `v0.1.0`
+ - Initial stable release
