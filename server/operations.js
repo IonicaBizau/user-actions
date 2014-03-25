@@ -160,6 +160,27 @@ function getAllowedActions (link, callback) {
                         return callback (err);
                     }
 
+                    /**
+                     *  This function is called after the response comes
+                     *  as array
+                     *
+                     * */
+                    function computeItems (itemsReturned) {
+
+                        // set a true/false value for this selector (if already set, keep it)
+                        responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(itemsReturned.length);
+
+                        // complete?
+                        if (++complete === l) {
+                            callback (null, responseObject);
+                        }
+                    }
+
+                    // items is an array
+                    if (items.constructor === Array) {
+                        return computeItems (items);
+                    }
+
                     // convert cursor to array
                     items.toArray(function (err, items) {
 
@@ -168,13 +189,7 @@ function getAllowedActions (link, callback) {
                             return callback (err);
                         }
 
-                        // set a true/false value for this selector (if already set, keep it)
-                        responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(items.length);
-
-                        // complete?
-                        if (++complete === l) {
-                            callback (null, responseObject);
-                        }
+                        computeItems (items);
                     })
                 });
             })(actions[i]);
