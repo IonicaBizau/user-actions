@@ -52,5 +52,8 @@ role_name: {
 
 ## Changelog
 
+### `v0.1.1`
+ - Default value for `actions`
+
 ### `v0.1.0`
  - Initial stable release
