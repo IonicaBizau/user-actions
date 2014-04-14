@@ -130,7 +130,7 @@ function getAllowedActions (link, callback) {
         }
 
         // get role actions
-        var actions = crudRole.actions;
+        var actions = crudRole.actions || [];
 
         // each action
         for (var i = 0, l = actions.length, complete = 0; i < l; ++i) {
