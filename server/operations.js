@@ -97,6 +97,10 @@ exports.runAction = function (link) {
     });
 };
 
+/*********************
+ * Private functions *
+ *********************/
+
 /**
  * getAllowedActions
  *
@@ -139,57 +143,140 @@ function getAllowedActions (link, callback) {
             // anonymous function
             (function (cAction) {
 
-                // set the _id of the current item
-                cAction.filter._id = String(data.itemId);
-
-                // also, the template
-                cAction.filter._tp = ObjectId(cAction.template);
-
-                // create the crud object
-                var crudObject = {
-                    templateId: data.templateId
-                  , query: cAction.filter
-                  , role: link.session.crudRole
-                  , session: link.session
-                };
-
-                // find the items via crud
-                M.emit("crud.read", crudObject, function (err, items) {
+                // get filter object (filter can be an object or a string,
+                // but this function is supposed to callback an object only)
+                getFilterObject (cAction, data, crudRole, function (err, filter) {
 
                     // handle error
                     if (err) { return callback (err); }
 
-                    /**
-                     *  This function is called after the response comes
-                     *  as array
-                     *
-                     * */
-                    function computeItems (itemsReturned) {
+                    // create the crud object
+                    var crudObject = {
+                        templateId: data.templateId
+                      , query: filter
+                      , role: link.session.crudRole
+                      , session: link.session
+                    };
 
-                        // set a true/false value for this selector (if already set, keep it)
-                        responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(itemsReturned.length);
-
-                        // complete?
-                        if (++complete === l) { callback (null, responseObject); }
-                    }
-
-                    // items is an array
-                    if (items.constructor === Array) {
-                        return computeItems (items);
-                    }
-
-                    // convert cursor to array
-                    items.toArray(function (err, items) {
+                    // find the items via crud
+                    M.emit("crud.read", crudObject, function (err, items) {
 
                         // handle error
                         if (err) { return callback (err); }
 
-                        computeItems (items);
-                    })
+                        /**
+                         *  This function is called after the response comes
+                         *  as array
+                         *
+                         * */
+                        function computeItems (itemsReturned) {
+
+                            // set a true/false value for this selector (if already set, keep it)
+                            responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(itemsReturned.length);
+
+                            // complete?
+                            if (++complete === l) { callback (null, responseObject); }
+                        }
+
+                        // items is an array
+                        if (items.constructor === Array) {
+                            return computeItems (items);
+                        }
+
+                        // convert cursor to array
+                        items.toArray(function (err, items) {
+
+                            // handle error
+                            if (err) { return callback (err); }
+
+                            computeItems (items);
+                        })
+                    });
                 });
             })(actions[i]);
         }
     });
+}
+
+/**
+ * getFilterObject
+ * This function computes the filter object by providing the
+ * action object (@cAction). The filter field from @cAction
+ * can be an object or a string. If it is a string, the module
+ * emits a server event that has the following format:
+ *
+ * "userActions:<filter value>"
+ *
+ * The event data is sent in the following parameters:
+ *  - link
+ *  - crudRole
+ *  - the callback function
+ *
+ * The callback function will be called from the custom script
+ * or another module with the following parameters:
+ *  - err: an error that appeared in the custom script/another module
+ *  - computedFilter: an object containing the query passed to mongo
+ *  - appendIdAndTp: if `false`, _id and _tp fields will NOT be set
+ *  to the final filter
+ *
+ * @param cAction: the action object
+ * @param userData: the link data that came from client
+ * @param crudRole: the crud role object
+ * @param callback: the callback function
+ * @return undefined
+ */
+function getFilterObject (cAction, userData, crudRole, callback) {
+
+    // validate filter
+    if (!cAction.filter || ["String", "Object"].indexOf (cAction.filter.constructor.name) === -1) {
+        return callback ("Invalid action filter data type. The action filter can be an object or a string");
+    }
+
+    // handle string type: emit server event, then interpret the result
+    if (cAction.filter.constructor.name === "String") {
+        return M.emit ("userActions:" + cAction.filter, link, crudRole, function (err, computedFilter, appendIdAndTp) {
+
+            // handle error
+            if (err) { return callback (err); }
+            if (!computedFilter || computedFilter.constructor.name !== "Object") {
+                return callback ("Invalid filter.");
+            }
+
+            // if false, we don't have to append the _id and _tp fields
+            if (appendIdAndTp === false) {
+                return callback (null, computedFilter);
+            }
+
+            // try to set _tp
+            try {
+                computedFilter._tp = ObjectId (cAction.template);
+            } catch (e) {
+                return callback (e);
+            }
+
+            // override the _id
+            computedFilter._id = String (data.itemId);
+
+            // finally we can callback
+            callback (null, computedFilter);
+        });
+    }
+
+    // TODO The objectids will not be parsed correctly. Right now,
+    //      the filter doesn't contain any fields that cannot be
+    //      parsed back (the template field is already a string)
+    var filter = JSON.parse (JSON.stringify (cAction.filter));
+
+    // append _id and _tp fields
+    filter._id = String (data.itemId);
+    try {
+        filter._tp = ObjectId (cAction.template);
+    } catch (e) {
+        return callback (e);
+    }
+
+    // callback filter
+    callback (null, filter);
 }
 
 /**
