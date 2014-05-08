@@ -149,7 +149,7 @@ function getAllowedActions (link, callback) {
 
                 // get filter object (filter can be an object or a string,
                 // but this function is supposed to callback an object only)
-                getFilterObject (cAction, data, crudRole, function (err, filter) {
+                getFilterObject (cAction, link, crudRole, function (err, filter) {
 
                     // handle error
                     if (err) { return callback (err); }
@@ -229,7 +229,8 @@ function getAllowedActions (link, callback) {
  * @param callback: the callback function
  * @return undefined
  */
-function getFilterObject (cAction, userData, crudRole, callback) {
+function getFilterObject (cAction, link, crudRole, callback) {
+    var data = link.data;
 
     // validate filter
     if (!cAction.filter || ["String", "Object"].indexOf (cAction.filter.constructor.name) === -1) {
