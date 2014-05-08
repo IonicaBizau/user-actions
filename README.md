@@ -52,6 +52,9 @@ role_name: {
 
 ## Changelog
 
+### `dev`
+ - Handle filters that are strings (emit server events)
+
 ### `v0.1.2`
  - Fixed hanging request when no actions were found for a specific template, role, and item. The server returns an empty object if no actions were found.
  - Added configurable action selector for hiding before rendering new correct actions with default value `[data-action]`:
