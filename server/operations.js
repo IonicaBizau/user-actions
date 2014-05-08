@@ -10,52 +10,50 @@ var MongoDb = require("mongodb")
 var CrudRoleCache = {};
 
 /**
+ * getUserControls
  *
- *  user-actions#getUserControls
+ * This function returns an object in the following format:
+ * {
+ *     SELECTOR: true
+ *   , ANOTHER_SELECTOR: false
+ * }
  *
- *  This function returns an object in the following format:
- *  {
- *      SELECTOR: true
- *    , ANOTHER_SELECTOR: false
- *  }
+ * This object will be interpreted on the client side: `SELECTOR` will be visible
+ * and `ANOTHER_SELECTOR` will be hidden.
  *
- *  This object will be interpreted on the client side: `SELECTOR` will be visible
- *  and `ANOTHER_SELECTOR` will be hidden.
+ * Example
  *
- *  Example
+ *     SERVER                                          CLIENT
+ *     Role Object
+ *     -----------                                     Selectors
+ *     {                                               "[data-action='delete']"
+ *         name: ...                                   "[data-action='update']"
+ *       , actions: [
+ *             {
+ *                 template: link.data.template
+ *               , filter:   link.data.filter
+ *               , selector: link.data.selector
+ *             }
+ *         ]
+ *     }
  *
- *      SERVER                                          CLIENT
- *      Role Object
- *      -----------                                     Selectors
- *      {                                               "[data-action='delete']"
- *          name: ...                                   "[data-action='update']"
- *        , actions: [
- *              {
- *                  template: link.data.template
- *                , filter:   link.data.filter
- *                , selector: link.data.selector
- *              }
- *          ]
- *      }
+ *     ----> each action --> Crud
  *
- *      ----> each action --> Crud
+ *     {
+ *         "[data-action='update']": true
+ *       , "[data-action='delete']": false
+ *     }
  *
- *      {
- *          "[data-action='update']": true
- *        , "[data-action='delete']": false
- *      }
- *
- *
- * */
+ * @param link The mono link object
+ * @return undefined
+ */
 exports.getUserControls = function (link) {
 
     // get allowed actions for this user
     getAllowedActions (link, function (err, responseObject) {
 
         // handle error
-        if (err) {
-            return link.send(400, err);
-        }
+        if (err) { return link.send(400, err); }
 
         // success response
         link.send(200, responseObject);
@@ -63,12 +61,14 @@ exports.getUserControls = function (link) {
 };
 
 /**
- *  user-actions#runAction
+ * runAction
  *
- *  This operation runs an user action running the validations
- *  on the server side.
+ * This operation runs an user action running the validations
+ * on the server side.
  *
- * */
+ * @param link The mono link object
+ * @return undefined
+ */
 exports.runAction = function (link) {
 
     // get allowed actions for this user
@@ -98,10 +98,14 @@ exports.runAction = function (link) {
 };
 
 /**
- * private: getAllowedActions
- *  This function returns via callback the allowed actions for the
- *  current user.
+ * getAllowedActions
  *
+ * This function returns via callback the allowed actions for the
+ * current user.
+ *
+ * @param link: The mono link object
+ * @param callback: the callback function
+ * @return undefined
  */
 function getAllowedActions (link, callback) {
 
@@ -109,17 +113,14 @@ function getAllowedActions (link, callback) {
     var responseObject = {}
 
         // get the data sent from client
-      , data = link.data = Object(link.data);
+      , data = link.data = Object(link.data)
+      ;
 
     // missing item id
-    if (!data.itemId) {
-        return callback ("Missing item id.");
-    }
+    if (!data.itemId) { return callback ("Missing item id."); }
 
     // missing template id
-    if (!data.templateId) {
-        return callback ("Missing template id.");
-    }
+    if (!data.templateId) { return callback ("Missing template id."); }
 
     // get the crud role
     getRoleObject(link, function (err, crudRole) {
@@ -156,9 +157,7 @@ function getAllowedActions (link, callback) {
                 M.emit("crud.read", crudObject, function (err, items) {
 
                     // handle error
-                    if (err) {
-                        return callback (err);
-                    }
+                    if (err) { return callback (err); }
 
                     /**
                      *  This function is called after the response comes
@@ -171,9 +170,7 @@ function getAllowedActions (link, callback) {
                         responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(itemsReturned.length);
 
                         // complete?
-                        if (++complete === l) {
-                            callback (null, responseObject);
-                        }
+                        if (++complete === l) { callback (null, responseObject); }
                     }
 
                     // items is an array
@@ -185,9 +182,7 @@ function getAllowedActions (link, callback) {
                     items.toArray(function (err, items) {
 
                         // handle error
-                        if (err) {
-                            return callback (err);
-                        }
+                        if (err) { return callback (err); }
 
                         computeItems (items);
                     })
@@ -198,16 +193,15 @@ function getAllowedActions (link, callback) {
 }
 
 /**
- * private: getRoleObject
+ * getRoleObject
  *
- *  This function callbacks the crud role object from the database
- *  using CRUD or from CrudRoleCache object.
+ * This function callbacks the crud role object from the database
+ * using CRUD or from CrudRoleCache object.
  *
- *  Arguments
- *    @link: the Mono link object
- *    @callback: the callback function
- *
- * */
+ * @param link: the Mono link object
+ * @param callback: the callback function
+ * @return undefined
+ */
 function getRoleObject (link, callback) {
 
     // stringify the crud role
@@ -234,17 +228,13 @@ function getRoleObject (link, callback) {
     M.emit("crud.read", crudObject, function (err, crudRoleObject) {
 
         // handle error
-        if (err) {
-            return callback (err);
-        }
+        if (err) { return callback (err); }
 
         // convert cursor to array
         crudRoleObject.toArray(function (err, items) {
 
             // handle error
-            if (err) {
-                return callback (err);
-            }
+            if (err) { return callback (err); }
 
             // handle error
             if (!items || !items.length) {
