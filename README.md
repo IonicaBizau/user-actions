@@ -52,6 +52,20 @@ role_name: {
 
 ## Changelog
 
+### `v0.1.2`
+ - Fixed hanging request when no actions were found for a specific template, role, and item. The server returns an empty object if no actions were found.
+ - Added configurable action selector for hiding before rendering new correct actions with default value `[data-action]`:
+
+```json
+"config": {
+    "ui": {
+        "selectors": {
+            "action": "[data-action]"
+        }
+    }
+}
+```
+
 ### `v0.1.1`
  - Default value for `actions`
 

@@ -3,9 +3,9 @@
     "owner": "IonicaBizau",
     "name": "user-actions",
     "dependencies": [
-        "/client/main.js",
-        "github/jillix/bind/v0.2.1",
-        "github/jillix/events/v0.1.8"
+        "/client/actions.js",
+        "github/jillix/bind/v0.2.2",
+        "github/jillix/events/v0.1.11"
     ],
     "operations": [
         { "file": "server/operations.js", "function": "runAction" },

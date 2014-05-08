@@ -13,6 +13,12 @@ module.exports = function init (config) {
     // get the module
     var self = this;
 
+    // normalize the configuration
+    self.config = config;
+    self.config.ui = self.config.ui || {};
+    self.config.ui.selectors = self.config.selectors || {};
+    self.config.ui.selectors.action = self.config.selectors || "[data-action]";
+
     // call Events
     Events.call(self, config);
 
@@ -54,6 +60,9 @@ module.exports = function init (config) {
                 return callback (err, null);
             }
 
+            // hide all the actions first
+            $(self.config.ui.selectors.action, self.dom).hide();
+
             // get selectors
             var selectors = Object.keys(responseObject);
 
@@ -70,12 +79,9 @@ module.exports = function init (config) {
                     $jQueryObject = self.cache.selectors[cSelector] = $(cSelector, self.dom);
                 }
 
-                // show it
+                // show the action
                 if (responseObject[cSelector]) {
                     $jQueryObject.show()
-                // hide it
-                } else {
-                    $jQueryObject.hide()
                 }
             }
 
@@ -119,3 +125,4 @@ module.exports = function init (config) {
     // ready
     self.emit("ready", config);
 };
+
