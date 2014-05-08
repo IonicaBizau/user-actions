@@ -1,4 +1,4 @@
-// Bind and Events dependencies
+// Dependencies
 var Bind = require("github/jillix/bind")
   , Events = require("github/jillix/events")
   ;
@@ -36,16 +36,13 @@ module.exports = function init (config) {
     };
 
     /**
+     * updateActionControls
+     * This function updates the user controls in UI
      *
-     *  updateActionControls
-     *
-     *  Arguments
-     *    @options: an object containing the following fields:
-     *      - TODO
-     *
-     *    @callback: the callback function
-     *
-     * */
+     * @param options: TODO
+     * @param callback: the callback function
+     * @return
+     */
     self.updateActionControls = function (options, callback) {
 
         // conversions and defaults
@@ -102,16 +99,15 @@ module.exports = function init (config) {
     };
 
     /**
-     *  user-actions#runAction
+     * runAction
      *
-     *  This function calls the server operation which validates the
-     *  rights of this user to run the action.
+     * This function calls the server operation which validates the
+     * rights of this user to run the action.
      *
-     *  Arguments
-     *    @options: object
-     *    @callback: the callback function
-     *
-     * */
+     * @param options: TODO
+     * @param callback: the callback function
+     * @return
+     */
     self.runAction = function (options, callback) {
 
         // conversions and defaults
