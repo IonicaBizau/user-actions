@@ -187,6 +187,11 @@ function getAllowedActions (link, callback) {
                             return computeItems (items);
                         }
 
+                        // verify if toArray is a function
+                        if (typeof items.toArray !== "function") {
+                            return callback("Items should be an array or a cursor");
+                        }
+
                         // convert cursor to array
                         items.toArray(function (err, items) {
 
