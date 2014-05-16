@@ -185,6 +185,11 @@ function getAllowedActions (link, callback) {
                         return computeItems (items);
                     }
 
+                    if (typeof items.toArray !== "function") {
+                        console.log(items);
+                        return callback ("Invalid items format.");
+                    }
+
                     // convert cursor to array
                     items.toArray(function (err, items) {
 
