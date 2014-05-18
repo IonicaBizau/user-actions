@@ -168,38 +168,11 @@ function getAllowedActions (link, callback) {
                         // handle error
                         if (err) { return callback (err); }
 
-                        /**
-                         *  This function is called after the response comes
-                         *  as array
-                         *
-                         * */
-                        function computeItems (itemsReturned) {
+                        // set a true/false value for this selector (if already set, keep it)
+                        responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(items.length);
 
-                            // set a true/false value for this selector (if already set, keep it)
-                            responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(itemsReturned.length);
-
-                            // complete?
-                            if (++complete === l) { callback (null, responseObject); }
-                        }
-
-                        // items is an array
-                        if (items.constructor === Array) {
-                            return computeItems (items);
-                        }
-
-                        // verify if toArray is a function
-                        if (typeof items.toArray !== "function") {
-                            return callback("Items should be an array or a cursor");
-                        }
-
-                        // convert cursor to array
-                        items.toArray(function (err, items) {
-
-                            // handle error
-                            if (err) { return callback (err); }
-
-                            computeItems (items);
-                        })
+                        // complete?
+                        if (++complete === l) { callback (null, responseObject); }
                     });
                 });
             })(actions[i]);
@@ -322,30 +295,21 @@ function getRoleObject (link, callback) {
     };
 
     // find the items via crud
-    M.emit("crud.read", crudObject, function (err, crudRoleObject) {
+    M.emit("crud.read", crudObject, function (err, items) {
 
         // handle error
         if (err) { return callback (err); }
+        if (!items || !items.length) {
+            return callback ("No crud role found with this id.");
+        }
 
-        // convert cursor to array
-        crudRoleObject.toArray(function (err, items) {
+        // get the first element from array
+        crudRoleObject = items[0];
 
-            // handle error
-            if (err) { return callback (err); }
+        // save the new crud role in cache
+        CrudRoleCache[stringifiedCrudRole] = crudRoleObject;
 
-            // handle error
-            if (!items || !items.length) {
-                return callback ("No crud role found with this id.");
-            }
-
-            // get the first element from array
-            crudRoleObject = items[0];
-
-            // save the new crud role in cache
-            CrudRoleCache[stringifiedCrudRole] = crudRoleObject;
-
-            // callback
-            callback (null, crudRoleObject);
-        });
+        // callback
+        callback (null, crudRoleObject);
     });
 }
