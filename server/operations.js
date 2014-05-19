@@ -169,7 +169,11 @@ function getAllowedActions (link, callback) {
                         if (err) { return callback (err); }
 
                         // set a true/false value for this selector (if already set, keep it)
-                        responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(items.length);
+                        if (cAction.display === "strict") {
+                            responseObject[cAction.selector] = (cAction.template === data.templateId) ? responseObject[cAction.selector] || Boolean(items.length) : false;
+                        } else {
+                            responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(items.length);
+                        }
 
                         // complete?
                         if (++complete === l) { callback (null, responseObject); }
