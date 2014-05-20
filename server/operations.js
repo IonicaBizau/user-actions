@@ -142,45 +142,50 @@ function getAllowedActions (link, callback) {
         }
 
         // each action
-        for (var i = 0, l = actions.length, complete = 0; i < l; ++i) {
+        for (var i = 0, l = actions.length, complete = 0; i < l; ++i) { (function (cAction) {
 
-            // anonymous function
-            (function (cAction) {
+            if (cAction.display === "strict" && cAction.template !== data.templateId) {
+                responseObject[cAction.selector] = responseObject[cAction.selector] || false;
+                // are we done?
+                if (++complete === l) { callback (null, responseObject); }
+                return;
+            }
 
-                // get filter object (filter can be an object or a string,
-                // but this function is supposed to callback an object only)
-                getFilterObject (cAction, link, crudRole, function (err, filter) {
+            // get filter object (filter can be an object or a string,
+            // but this function is supposed to callback an object only)
+            getFilterObject (cAction, link, crudRole, function (err, filter) {
+
+                // handle error
+                if (err) { return callback (err); }
+
+                // create the crud object
+                var crudObject = {
+                    templateId: data.templateId
+                  , query: filter
+                  , role: link.session.crudRole
+                  , session: link.session
+                };
+
+                // find the items via crud
+                M.emit("crud.read", crudObject, function (err, items) {
 
                     // handle error
                     if (err) { return callback (err); }
 
-                    // create the crud object
-                    var crudObject = {
-                        templateId: data.templateId
-                      , query: filter
-                      , role: link.session.crudRole
-                      , session: link.session
-                    };
+                    // no items found, no action (unless the item is already set)
+                    if (!items.length) {
+                        responseObject[cAction.selector] = responseObject[cAction.selector] || false;
+                    }
+                    // a visible action
+                    else {
+                        responseObject[cAction.selector] = true;
+                    }
 
-                    // find the items via crud
-                    M.emit("crud.read", crudObject, function (err, items) {
-
-                        // handle error
-                        if (err) { return callback (err); }
-
-                        // set a true/false value for this selector (if already set, keep it)
-                        if (cAction.display === "strict") {
-                            responseObject[cAction.selector] = (cAction.template === data.templateId) ? responseObject[cAction.selector] || Boolean(items.length) : false;
-                        } else {
-                            responseObject[cAction.selector] = responseObject[cAction.selector] || Boolean(items.length);
-                        }
-
-                        // complete?
-                        if (++complete === l) { callback (null, responseObject); }
-                    });
+                    // are we done?
+                    if (++complete === l) { callback (null, responseObject); }
                 });
-            })(actions[i]);
-        }
+            });
+        })(actions[i]); }
     });
 }
 
