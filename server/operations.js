@@ -164,6 +164,7 @@ function getAllowedActions (link, callback) {
                   , query: filter
                   , role: link.session.crudRole
                   , session: link.session
+                  , noCursor: true
                 };
 
                 // find the items via crud
@@ -301,6 +302,7 @@ function getRoleObject (link, callback) {
         }
       , role: link.session.crudRole
       , session: link.session
+      , noCursor: true
     };
 
     // find the items via crud
