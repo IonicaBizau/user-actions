@@ -220,56 +220,67 @@ function getAllowedActions (link, callback) {
 function getFilterObject (cAction, link, crudRole, callback) {
     var data = link.data;
 
-    // validate filter
-    if (!cAction.filter || ["String", "Object"].indexOf (cAction.filter.constructor.name) === -1) {
-        return callback ("Invalid action filter data type. The action filter can be an object or a string");
+    // verify if the filter exists
+    if (!cAction.hasOwnProperty("filter")) {
+        return callback("Action filter missing!");
     }
 
-    // handle string type: emit server event, then interpret the result
-    if (cAction.filter.constructor.name === "String") {
-        return M.emit ("userActions:" + cAction.filter, link, crudRole, function (err, computedFilter, appendIdAndTp) {
+    // check if filter is an object
+    if (cAction.filter[0] === "{" || cAction.filter === "") {
 
-            // handle error
-            if (err) { return callback (err); }
-            if (!computedFilter || computedFilter.constructor.name !== "Object") {
-                return callback ("Invalid filter.");
-            }
+        var filter = {};
 
-            // if false, we don't have to append the _id and _tp fields
-            if (appendIdAndTp === false) {
-                return callback (null, computedFilter);
-            }
-
-            // try to set _tp
+        if (cAction.filter[0] === "{") {
+            // deserialize the filter
             try {
-                computedFilter._tp = ObjectId (cAction.template);
+                var filter = JSON.parse(cAction.filter);
             } catch (e) {
-                return callback (e);
+                return callback ("Invalid action filter :" + e);
             }
+        }
 
-            // override the _id
-            computedFilter._id = String (data.itemId);
+        // append _id and _tp fields
+        filter._id = String (data.itemId);
+        try {
+            filter._tp = ObjectId (cAction.template);
+        } catch (e) {
+            return callback (e);
+        }
 
-            // finally we can callback
-            callback (null, computedFilter);
-        });
+        // callback filter
+        callback (null, filter);
+
+    } else {
+        // handle string type: emit server event, then interpret the result
+        if (cAction.filter.constructor.name === "String") {
+            return M.emit ("userActions:" + cAction.filter, link, crudRole, function (err, computedFilter, appendIdAndTp) {
+
+                // handle error
+                if (err) { return callback (err); }
+                if (!computedFilter || computedFilter.constructor.name !== "Object") {
+                    return callback ("Invalid filter.");
+                }
+
+                // if false, we don't have to append the _id and _tp fields
+                if (appendIdAndTp === false) {
+                    return callback (null, computedFilter);
+                }
+
+                // try to set _tp
+                try {
+                    computedFilter._tp = ObjectId (cAction.template);
+                } catch (e) {
+                    return callback (e);
+                }
+
+                // override the _id
+                computedFilter._id = String (data.itemId);
+
+                // finally we can callback
+                callback (null, computedFilter);
+            });
+        }
     }
-
-    // TODO The objectids will not be parsed correctly. Right now,
-    //      the filter doesn't contain any fields that cannot be
-    //      parsed back (the template field is already a string)
-    var filter = JSON.parse (JSON.stringify (cAction.filter));
-
-    // append _id and _tp fields
-    filter._id = String (data.itemId);
-    try {
-        filter._tp = ObjectId (cAction.template);
-    } catch (e) {
-        return callback (e);
-    }
-
-    // callback filter
-    callback (null, filter);
 }
 
 /**
