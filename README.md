@@ -53,8 +53,11 @@ role_name: {
 ## Changelog
 
 ### `dev`
+
+### `v0.2.0`
  - Handle filters that are strings (emit server events)
  - Simplified the code from the CRUD response callback
+ - Updated deps
 
 ### `v0.1.2`
  - Fixed hanging request when no actions were found for a specific template, role, and item. The server returns an empty object if no actions were found.
