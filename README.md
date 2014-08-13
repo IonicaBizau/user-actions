@@ -53,6 +53,10 @@ role_name: {
 ## Changelog
 
 ### `dev`
+ - add new features here
+
+### `v0.2.1`
+ - Updated to Bind `v0.3.1`
 
 ### `v0.2.0`
  - Handle filters that are strings (emit server events)

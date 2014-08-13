@@ -1,10 +1,10 @@
 {
     "source": "github",
-    "owner": "IonicaBizau",
+    "owner": "jillix",
     "name": "user-actions",
     "dependencies": [
         "/client/actions.js",
-        "github/jillix/bind/v0.3.0",
+        "github/jillix/bind/v0.3.1",
         "github/jillix/events/v0.3.0"
     ],
     "operations": [
