@@ -9,7 +9,7 @@ Include the module in the application descriptor.
 
 ```js
 "MIID_NAME": {
-    "module": "github/IonicaBizau/user-actions/MODULE_VERSION",
+    "module": "github/jillix/user-actions/MODULE_VERSION",
     "roles": MONO_ROLES,
     "config": {
         "html": PATH_TO_HTML_FILE
