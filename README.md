@@ -52,7 +52,9 @@ role_name: {
 
 ## Changelog
 
-### `dev`
+### `v0.3.0`
+ - transferred the module to the new jxMono organization
+ - updated Bind to `v0.4.0`, Events to `v0.4.0`
 
 ### `v0.2.0`
  - Handle filters that are strings (emit server events)
