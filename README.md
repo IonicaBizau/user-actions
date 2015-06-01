@@ -56,6 +56,9 @@ role_name: {
  - transferred the module to the new jxMono organization
  - updated Bind to `v0.4.0`, Events to `v0.4.0`
 
+### `v0.2.1`
+ - Updated to Bind `v0.3.1`
+
 ### `v0.2.0`
  - Handle filters that are strings (emit server events)
  - Simplified the code from the CRUD response callback
