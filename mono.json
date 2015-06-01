@@ -1,11 +1,11 @@
 {
     "source": "github",
-    "owner": "jillix",
+    "owner": "jxmono",
     "name": "user-actions",
     "dependencies": [
         "/client/actions.js",
-        "github/jillix/bind/v0.3.0",
-        "github/jillix/events/v0.3.0"
+        "github/jxmono/bind/v0.4.0",
+        "github/jxmono/events/v0.4.0"
     ],
     "operations": [
         { "file": "server/operations.js", "function": "runAction" },
